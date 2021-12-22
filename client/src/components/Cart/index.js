@@ -5,38 +5,39 @@ import { QUERY_CHECKOUT } from "../../utils/queries";
 import { idbPromise } from "../../utils/helpers";
 import CartItem from "../CartItem";
 import Auth from "../../utils/auth";
-import { useStoreContext } from "../../utils/GlobalState";
+
 import { TOGGLE_CART, ADD_MULTIPLE_TO_CART } from "../../utils/actions";
 import "./style.css";
+import { useSelector, useDispatch } from "react-redux";
 
 const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
 const Cart = () => {
-  const store = useStoreContext();
-  const state = store.getState();
+  const state = useSelector((state) => state);
+  const dispatch = useDispatch();
   const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
 
-  store.subscribe(() => {
+  useEffect(() => {
     if (data) {
       stripePromise.then((res) => {
         res.redirectToCheckout({ sessionId: data.checkout.session });
       });
     }
-  });
+  }, [data]);
 
-  store.subscribe(() => {
+  useEffect(() => {
     async function getCart() {
       const cart = await idbPromise("cart", "get");
-      store.dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });
+      dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });
     }
 
     if (!state.cart.length) {
       getCart();
     }
-  });
+  }, [state.cart.length, dispatch]);
 
   function toggleCart() {
-    store.dispatch({ type: TOGGLE_CART });
+    dispatch({ type: TOGGLE_CART });
   }
 
   function calculateTotal() {

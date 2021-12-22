@@ -10,8 +10,16 @@ import {
   CLEAR_CART,
   TOGGLE_CART,
 } from "./actions";
-import { createStore } from "redux";
-export const reducer = (state, action) => {
+
+const defaultState = {
+  products: [],
+  cart: [],
+  cartOpen: false,
+  categories: [],
+  currentCategory: "",
+};
+
+const reducer = (state = defaultState, action) => {
   switch (action.type) {
     case UPDATE_PRODUCTS:
       return {
@@ -86,6 +94,4 @@ export const reducer = (state, action) => {
   }
 };
 
-export function useProductReducer(initialState) {
-  return createStore(reducer, initialState);
-}
+export default reducer;
